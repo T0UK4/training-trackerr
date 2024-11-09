@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react';
 import { Calendar, Plus } from 'lucide-react';
 
 function App() {
-  // Carrega treinos salvos do localStorage
   const [trainings, setTrainings] = useState(() => {
     const saved = localStorage.getItem('trainings');
     return saved ? JSON.parse(saved) : [];
   });
   
-  const [currentTraining, setCurrentTraining] = useState('');
   const [selectedDay, setSelectedDay] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [isAddingMode, setIsAddingMode] = useState(false);
 
-  // Salva treinos no localStorage sempre que mudam
   useEffect(() => {
     localStorage.setItem('trainings', JSON.stringify(trainings));
   }, [trainings]);
@@ -29,7 +26,7 @@ function App() {
   ];
 
   const trainingTypes = [
-    'Peito-e-Ombro',
+    'Peito e Ombro',
     'Costas e Bíceps',
     'Perna Completo (com foco em costas)',
     'Ombro e panturrilha',
@@ -37,7 +34,6 @@ function App() {
     'Cardio'
   ];
 
-  // Calcula contadores por tipo de treino
   const getTrainingCounts = () => {
     const counts = {};
     trainingTypes.forEach(type => {
@@ -47,17 +43,15 @@ function App() {
   };
 
   const addTraining = () => {
-    if (currentTraining.trim() && selectedDay && selectedType) {
+    if (selectedDay && selectedType) {
       const today = new Date();
       const newTraining = {
         id: Date.now(),
         day: selectedDay,
         type: selectedType,
-        training: currentTraining,
         date: today.toLocaleDateString('pt-BR'),
       };
       setTrainings([...trainings, newTraining]);
-      setCurrentTraining('');
       setSelectedDay('');
       setSelectedType('');
       setIsAddingMode(false);
@@ -90,7 +84,6 @@ function App() {
             Total de treinos: {trainings.length}
           </div>
 
-          {/* Contadores por tipo de treino */}
           <div className="mt-2 grid grid-cols-2 gap-2">
             {Object.entries(trainingCounts).map(([type, count]) => (
               count > 0 && (
@@ -130,7 +123,7 @@ function App() {
               <button
                 className="flex-1 bg-blue-500 text-white p-2 rounded text-sm hover:bg-blue-600"
                 onClick={addTraining}
-                disabled={!selectedDay || !currentTraining.trim() || !selectedType}
+                disabled={!selectedDay || !selectedType}
               >
                 Salvar
               </button>
@@ -162,10 +155,8 @@ function App() {
                       key={training.id} 
                       className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm"
                     >
-                      <div>
-                        <span className="font-medium">{training.type}</span>
-                        <br />
-                        <span>{training.training}</span>
+                      <div className="font-medium">
+                        {training.type}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500">{training.date}</span>
