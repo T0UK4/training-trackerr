@@ -1,19 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Plus } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 function App() {
-  const [trainings, setTrainings] = useState(() => {
-    const saved = localStorage.getItem('trainings');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
+  const [trainings, setTrainings] = useState([]);
   const [selectedDay, setSelectedDay] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [isAddingMode, setIsAddingMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('trainings', JSON.stringify(trainings));
-  }, [trainings]);
+    fetchTrainings();
+  }, []);
+
+  async function fetchTrainings() {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('trainings')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) throw error;
+      setTrainings(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar treinos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const weekDays = [
     'Domingo',
@@ -42,27 +57,56 @@ function App() {
     return counts;
   };
 
-  const addTraining = () => {
+  const addTraining = async () => {
     if (selectedDay && selectedType) {
       const today = new Date();
       const newTraining = {
-        id: Date.now(),
         day: selectedDay,
         type: selectedType,
         date: today.toLocaleDateString('pt-BR'),
       };
-      setTrainings([...trainings, newTraining]);
-      setSelectedDay('');
-      setSelectedType('');
-      setIsAddingMode(false);
+
+      try {
+        const { error } = await supabase
+          .from('trainings')
+          .insert(newTraining);
+
+        if (error) throw error;
+        
+        fetchTrainings(); // Recarrega os treinos
+        setSelectedDay('');
+        setSelectedType('');
+        setIsAddingMode(false);
+      } catch (error) {
+        console.error('Erro ao adicionar treino:', error);
+      }
     }
   };
 
-  const removeTraining = (id) => {
-    setTrainings(trainings.filter(training => training.id !== id));
+  const removeTraining = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('trainings')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      fetchTrainings(); // Recarrega os treinos
+    } catch (error) {
+      console.error('Erro ao remover treino:', error);
+    }
   };
 
   const trainingCounts = getTrainingCounts();
+
+  if (isLoading) {
+    return (
+      <div className="max-w-sm mx-auto p-2 text-center">
+        Carregando...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-sm mx-auto p-2">
