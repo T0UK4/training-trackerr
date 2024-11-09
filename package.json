@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
+    "@supabase/supabase-js": "^2.46.1",
     "autoprefixer": "^10.4.20",
     "lucide-react": "^0.456.0",
     "postcss": "^8.4.47",
