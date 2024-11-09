@@ -126,14 +126,6 @@ function App() {
               ))}
             </select>
             
-            <input
-              type="text"
-              value={currentTraining}
-              onChange={(e) => setCurrentTraining(e.target.value)}
-              placeholder="Descrição do treino"
-              className="w-full p-2 border rounded text-sm"
-            />
-            
             <div className="flex gap-2">
               <button
                 className="flex-1 bg-blue-500 text-white p-2 rounded text-sm hover:bg-blue-600"
